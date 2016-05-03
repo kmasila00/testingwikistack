@@ -1,17 +1,40 @@
+var expect = require('chai').expect;
+var chai = require('chai');
+var spies = require('chai-spies');
+chai.use(spies);
+
 describe('Page model', function () {
 
+  var models = require('../models');
+  var Page = models.Page;
+  var page;
+  beforeEach(function() {
+  page = Page.build();
+
+    })
+
   describe('Virtuals', function () {
+
     describe('route', function () {
-      it('returns the url_name prepended by "/wiki/"');
+      it('returns the url_name prepended by "/wiki/"', function() {
+        page.urlTitle = 'some_title';
+        expect(page.route).to.equal('/wiki/some_title');
+      });
     });
+
     describe('renderedContent', function () {
-      it('converts the markdown-formatted content into HTML');
+      it('converts the markdown-formatted content into HTML', function() {
+        page.content = 'some content';
+        expect(page.renderedContent).to.equal('<p>some content</p>\n');
+      });
     });
   });
 
   describe('Class methods', function () {
     describe('findByTag', function () {
-      it('gets pages with the search tag');
+      it('gets pages with the search tag', function() {
+        page.findBy
+      });
       it('does not get pages without the search tag');
     });
   });

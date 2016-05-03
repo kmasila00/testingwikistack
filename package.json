@@ -10,5 +10,12 @@
     "pg-hstore": "^2.3.2",
     "sequelize": "^3.21.0",
     "swig": "^1.4.2"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.4.5"
+  },
+  "scripts":{
+    "test": "mocha"
   }
 }

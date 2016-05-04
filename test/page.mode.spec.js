@@ -10,22 +10,30 @@ var instance
   var User = models.User;
   var page;
 
-  Page.sync().then(function(){User.sync()});
 
-  beforeEach(function(done) {
-  page = Page.create({
-    title : 'foo',
-    content : 'bar',
-    tags : ['foo', 'bar']
-  }).then(function(foo) {
-    instance = foo;
-    done()});
-
+  before(function(done) { //// runs before all tests in this block
+    User.sync({force : true})
+    .then(function(){
+      return Page.sync({force : true}) // we need to return because the .sync creates a promise but does not return it
+    })
+    .then(function() {
+      return Page.create({
+        title : 'foo',
+        content : 'bar',
+        tags : ['foo', 'bar']
+      })
+    })
+    .then(function(foo) {
+      instance = foo;
+      done()});
     })
 
-  // afterEach(function() {
-  //   Page.sync({force : true});
-  //   User.sync({force : true});
+  // after(function(done) {
+  //   Page.sync({force : true})
+  //   .then(function() {
+  //     User.sync({force : true})
+  //     done();
+  //   });
   // });
 
 
@@ -47,21 +55,67 @@ var instance
   });
 
   describe('Class methods', function () {
+    
     describe('findByTag', function () {
-      it('gets pages with the search tag', function() {
-        expect(findByTag('foo')).to.equal(page);
+
+      it('gets pages with the search tag', function(done) {
+        Page.findByTag('bar')
+        .then(function(pages) {
+          expect(pages).to.have.lengthOf(1);
+          done();
+        })
+        .catch(done) //move on to the next thing and fail this spec
       });
-      it('does not get pages without the search tag', function() {
-        expect(findByTag().to.equal(undefined));
+
+      it('does not get pages without the search tag', function(done) {
+        Page.findByTag('cdohfs')
+        .then(function(pages) {
+          expect(pages).to.have.lengthOf(0);
+          done();
+        })
+        .catch(done)
       });
     });
   });
 
   describe('Instance methods', function () {
-    describe('findSimilar', function () {
-      it('never gets itself');
-      it('gets other pages with any common tags');
-      it('does not get other pages without any common tags');
+    
+    describe('findSimilar', function (done) {
+       var instanceWithSharedTag = Page.create({
+        title : 'SharedTag',
+        content : 'SharedTag',
+        tags : ['bar']
+      })
+       .then(function(SharedTag) {
+      instance = SharedTag;
+      done()
+      });
+    })
+
+      page = Page.create({
+        title : 'NoSharedTag',
+        content : 'NoSharedTag',
+        tags : ['clue']
+      })
+      .then(function(NoSharedTag) {
+        var instanceWithoutSharedTag = NoSharedTag;
+        done()
+      });
+
+      console.log(instance.findSimilar());
+
+      it('never gets itself', function() {
+
+      });
+
+      xit('gets other pages with any common tags', function() {
+
+      });
+
+      xit('does not get other pages without any common tags', function() {
+
+      });
+
     });
   });
 

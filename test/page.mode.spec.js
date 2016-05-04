@@ -4,28 +4,44 @@ var spies = require('chai-spies');
 chai.use(spies);
 
 describe('Page model', function () {
-
+var instance
   var models = require('../models');
   var Page = models.Page;
+  var User = models.User;
   var page;
-  beforeEach(function() {
-  page = Page.build();
+
+  Page.sync().then(function(){User.sync()});
+
+  beforeEach(function(done) {
+  page = Page.create({
+    title : 'foo',
+    content : 'bar',
+    tags : ['foo', 'bar']
+  }).then(function(foo) {
+    instance = foo;
+    done()});
 
     })
+
+  // afterEach(function() {
+  //   Page.sync({force : true});
+  //   User.sync({force : true});
+  // });
+
 
   describe('Virtuals', function () {
 
     describe('route', function () {
       it('returns the url_name prepended by "/wiki/"', function() {
-        page.urlTitle = 'some_title';
-        expect(page.route).to.equal('/wiki/some_title');
+        instance.urlTitle = 'some_title';
+        expect(instance.route).to.equal('/wiki/some_title');
       });
     });
 
     describe('renderedContent', function () {
       it('converts the markdown-formatted content into HTML', function() {
-        page.content = 'some content';
-        expect(page.renderedContent).to.equal('<p>some content</p>\n');
+        instance.content = 'some content';
+        expect(instance.renderedContent).to.equal('<p>some content</p>\n');
       });
     });
   });
@@ -33,9 +49,11 @@ describe('Page model', function () {
   describe('Class methods', function () {
     describe('findByTag', function () {
       it('gets pages with the search tag', function() {
-        page.findBy
+        expect(findByTag('foo')).to.equal(page);
       });
-      it('does not get pages without the search tag');
+      it('does not get pages without the search tag', function() {
+        expect(findByTag().to.equal(undefined));
+      });
     });
   });
 
